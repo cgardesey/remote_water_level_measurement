@@ -1,0 +1,100 @@
+<html lang="en">
+<head>
+</head>
+<body>
+<div id="app">
+  <fusioncharts
+    :width="width"
+    :height="height"
+    :type="type"
+    :dataFormat="dataFormat"
+    :dataSource="dataSource"
+  >
+    FusionCharts will render here...
+  </fusioncharts>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/fusioncharts@3.13.3-sr.1/fusioncharts.js"></script>
+<script src="https://unpkg.com/fusioncharts@3.13.3-sr.1/fusioncharts.timeseries.js"></script>
+<!-- If you want to use vue-fusioncharts as a plugin -->
+<script src="https://unpkg.com/vue-fusioncharts@3.0.1/dist/vue-fusioncharts.js"></script>
+<!-- If you want to use vue-fusioncharts as a component -->
+<!-- <script src="https://unpkg.com/vue-fusioncharts@3.0.0/component/index.js"></script> -->
+<script>
+  // Register vue-fusioncharts as a plugin if you want to use it globally
+  Vue.use(VueFusionCharts, FusionCharts);
+
+  // Links to fetch data and schema for TimeSeries chart
+  const jsonify = res => res.json();
+  var dataFetch = fetch(
+    'http://localhost:55554/measurements'
+  ).then(jsonify);
+  var schemaFetch = fetch(
+    'http://localhost:55554/measurement-schema'
+  ).then(jsonify);
+
+  // Create vue-fusioncharts component
+  // let vFC = VueFusionChartsComponent(FusionCharts);
+
+  var app = new Vue({
+    el: '#app',
+    // Register the vue-fusioncharts component you created earlier if you want to use it locally
+    // components: { fusioncharts: vFC },
+    data: {
+      width: '700',
+      height: '400',
+      type: 'timeseries',
+      dataFormat: 'json',
+      displayChart: false,
+      dataSource: {
+        "chart": {
+          "caption": "Countries With Most Oil Reserves [2017-18]",
+          "subcaption": "In MMbbl = One Million barrels",
+          "yaxisname": "Reserves (MMbbl)",
+          "numbersuffix": "K",
+          "labeldisplay": "TOP",
+          "theme": "fusion"
+        },
+        // Initially data is set as null
+        data: null,
+        caption: {
+          text: 'Water Level Logging'
+        },
+        subcaption: {
+          text: ''
+        },
+        yAxis: [
+          {
+            plot: {
+              value: 'Grocery Sales Value',
+              type: 'line'
+            },
+            format: {
+              prefix: '$'
+            },
+            title: 'Sale Value'
+          }
+        ]
+      }
+    },
+    mounted: function() {
+      // In this Promise we will create our DataStore and using that we will create a custom DataTable which takes two
+      // parameters, one is data another is schema.
+      Promise.all([dataFetch, schemaFetch]).then(res => {
+        const data = res[0];
+        const schema = res[1];
+        // First we are creating a DataStore
+        const fusionDataStore = new FusionCharts.DataStore();
+        // After that we are creating a DataTable by passing our data and schema as arguments
+        const fusionTable = fusionDataStore.createDataTable(data, schema);
+        // After that we simply mutated our timeseries datasource by attaching the above
+        // DataTable into its data property.
+        this.dataSource.data = fusionTable;
+      });
+    }
+  });
+</script>
+</body>
+</html>

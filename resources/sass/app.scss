@@ -1,0 +1,25 @@
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+// Variables
+@import 'variables';
+
+// Bootstrap
+@import '~bootstrap/scss/bootstrap';
+
+body {
+  background-color: #F8FAFC;
+}
+
+/********** Small devices**********/
+@media (max-width: 767px) {
+  #dLabel {
+    width: 100%;
+    height: auto;
+    word-wrap: break-spaces;
+    text-align: center;
+    white-space:normal;
+  }
+}
+
+
